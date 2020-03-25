@@ -43,7 +43,8 @@ for sitzung in daten:
                 pass
             else:
                 absatz = absatz.text
-        redetext = [x for x in redetext if x is not None]
+                redetext[i] = absatz
+        redetext = [x for x in redetext if x]
 
         kommentare = xml_rede.xpath("./kommentar")
 
