@@ -5,7 +5,8 @@ import ast
 import csv
 import re
 
-daten = glob("plenarprotokolle/testing_prep/19001-data.xml.log")
+daten = glob("plenarprotokolle/testing_prep/*.xml.log")
+sprecher_werte = {}
 
 classifiers_neg, classifiers_pos = {}, {}
 deutsche_stopwoerter = stopwords.words("german")
@@ -54,9 +55,7 @@ def sentiment(input):
             negtokens += 1
             score_negtokens -= classifiers_neg[token]
             score += classifiers_neg[token]
-    return score
-    # return {'text':' '.join(input),'score':score,'postokens':postokens,'negtokens':negtokens,'positive_score':score_postokens,'negative_score':score_negtokens,'date':tweet['datum']}
-
+    return (score/len(input))
 
 for protokoll_log in daten:
     protokoll = open(protokoll_log, "r+").read()
@@ -64,9 +63,16 @@ for protokoll_log in daten:
 
     for rede in protokoll["inhalt"]["reden"]:
         sentiment_summe = 0
+        redner = rede["meta"]["redner_name"]
+        partei = rede["meta"]["redner_partei"]
+        redner_id = rede["meta"]["redner_id"]
         redetext_tokenized = []
+
         for absatz in rede["inhalt"]["absaetze"]:
-            absatz_tokenized = word_tokenize(absatz, language="german")
+            if isinstance(absatz, str):
+                absatz_tokenized = word_tokenize(absatz, language="german")
+            else:
+                absatz_tokenized = []
 
             for i in range(len(absatz_tokenized)):
                 absatz_tokenized[i] = absatz_tokenized[i].lower()
@@ -77,7 +83,16 @@ for protokoll_log in daten:
             absatz_tokenized = [x for x in absatz_tokenized if not satzzeichen.match(x)]
 
             redetext_tokenized.append(absatz_tokenized)
-        for absatz_tokenized in redetext_tokenized:
-            sentiment_summe += sentiment(absatz_tokenized)
-        print(sentiment_summe)
 
+        for absatz_tokenized in redetext_tokenized:
+            if absatz_tokenized:
+                sentiment_summe += sentiment(absatz_tokenized)
+
+        if redner_id in sprecher_werte.keys():
+            sprecher_werte[redner_id] += sentiment_summe
+        else:
+            sprecher_werte[redner_id] = sentiment_summe
+
+print("Maximaler Sprecherwert", max(sprecher_werte.values()))
+print("Minimaler Sprecherwert", min(sprecher_werte.values()))
+print(sprecher_werte)
