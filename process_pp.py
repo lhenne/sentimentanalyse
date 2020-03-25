@@ -36,13 +36,14 @@ for sitzung in daten:
         redner_info = xml_rede.find("./p[@klasse='redner']/redner")
         redetext = xml_rede.xpath(redetext_kondition)
 
+        # Leere Absaetze rausschmeissen
         for i in range(len(redetext)):
             absatz = redetext[i]
             if isinstance(absatz, str):
                 pass
             else:
                 absatz = absatz.text
-                redetext[i] = absatz
+        redetext = [x for x in redetext if x]
 
         kommentare = xml_rede.xpath("./kommentar")
 
