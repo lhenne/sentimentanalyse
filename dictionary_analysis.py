@@ -1,4 +1,3 @@
-from nltk.corpus import stopwords
 import csv
 from glob import glob
 import ast
@@ -7,7 +6,6 @@ daten = glob("plenarprotokolle/testing_prep/*.xml.log")
 
 sprecher_werte = {}
 classifiers_neg, classifiers_pos = {}, {}
-deutsche_stopwoerter = stopwords.words("german")
 
 
 def collect_classifiers(sourcefile, target_dict):
@@ -39,7 +37,7 @@ def drop_stopwoerter(protokoll):
 
 def analyse(log):
     protokoll_datei = open(log, "r+").read()
-    protokoll_objekt = drop_stopwoerter(ast.literal_eval(protokoll_datei))
+    protokoll_objekt = ast.literal_eval(protokoll_datei)
 
     for i in range(len(protokoll_objekt)):
         rede_tokenisiert = protokoll_objekt[i]["inhalt"]["tokenisiert"]

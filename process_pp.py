@@ -17,7 +17,7 @@ mdbs_ohne_daten = {}
 def get_partei(redner_id):
     mdb_id = stammdaten_parse.xpath(".//ID[text()=%s]" % redner_id)[0]
     mdb_daten = mdb_id.getparent()
-    mdb_partei = mdb_daten.find("./BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")[0]
+    mdb_partei = mdb_daten.find("./BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")[0].text
     return mdb_partei
 
 # Für jedes Protokoll die relevanten Informationen in einem Wörterbuch sammeln
@@ -56,7 +56,7 @@ for sitzung in daten:
                 kommentar = kommentar.text
                 kommentare[i] = kommentar
 
-        redner_id = redner_info.xpath("@id")[0]
+        redner_id = str(redner_info.xpath("@id")[0])
 
         try:
             rednername = redner_info.find("./name/vorname") + " " + redner_info.find("./name/nachname")
@@ -78,10 +78,10 @@ for sitzung in daten:
 
         rede = {
             "meta": {
-                "rede_id": xml_rede.xpath("@id")[0],
+                "rede_id": str(xml_rede.xpath("@id")[0]),
                 "redner_id": redner_id,
                 "redner_name": rednername,
-                "redner_info": redner_info.find("./rolle/rolle_lang"),
+                "redner_info": str(redner_info.xpath("./rolle/rolle_lang")),
                 "redner_partei": redner_partei
             },
             "inhalt": {
@@ -93,9 +93,9 @@ for sitzung in daten:
 
     protokoll = {
         "meta": {
-            "wahlperiode": metadata.find("./plenarprotokoll-nummer/wahlperiode"),
-            "sitzungsnr": metadata.find("./sitzungstitel/sitzungsnr"),
-            "ort": metadata.find("./veranstaltungsdaten/ort"),
+            "wahlperiode": metadata.find("./plenarprotokoll-nummer/wahlperiode").text,
+            "sitzungsnr": metadata.find("./sitzungstitel/sitzungsnr").text,
+            "ort": metadata.find("./veranstaltungsdaten/ort").text,
             "datum": metadata.find("./veranstaltungsdaten/datum").get("date")
         },
         "inhalt": {
@@ -103,8 +103,8 @@ for sitzung in daten:
         }
     }
 
-    with open(file=(sitzung + ".log"), mode="w+") as outfile:
-        pprint(protokoll, stream=outfile)
+    # with open(file=(sitzung + ".log"), mode="w+") as outfile:
+    #    pprint(protokoll, stream=outfile)
     with open(file=(sitzung + ".pickle"), mode="wb") as outfile:
         pickle.dump(protokoll, outfile)
     pprint(mdbs_ohne_daten, stream=open("mdbs_ohne_daten.txt", "w+"))
