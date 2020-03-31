@@ -7,11 +7,17 @@ from lxml import objectify as etree
 import pickle
 from glob import glob
 from pprint import pprint
+import spacy
+from spacy.tokens import DocBin
 
 # XML-Dateien der Bundestagsprotokolle lokalisieren und Liste mit Adressen sammeln
-daten = glob("plenarprotokolle/testing_prep/*.xml")
+daten = glob("plenarprotokolle/pp19/*.xml")
+total = len(daten)
+current = 1
+
 stammdaten_parse = etree.parse("plenarprotokolle/MDB_STAMMDATEN.XML")
 mdbs_ohne_daten = {}
+nlp = spacy.load("de_core_news_sm")
 
 # Stammdaten der Sprecher einlesen
 def get_partei(redner_id):
@@ -22,7 +28,9 @@ def get_partei(redner_id):
 
 # Für jedes Protokoll die relevanten Informationen in einem Wörterbuch sammeln
 for sitzung in daten:
+    print("[" , current , "/" , total , "]")
     reden = []  # Liste aller Protokoll-Objekte
+    spacy_reden = []
     redetext_klassen = ["J_1", "J", "O", "A_TOP", "T_Beratung", "T_Drs", "T_E_Drs", "T_E_E_Drs", "T_E_fett",
     "T_NaS", "T_NaS_NaS", "T_ZP_NaS", "T_ZP_NaS_NaS", "T_ZP_NaS_NaS_Strich",
     "T_Ueberweisung", "T_fett", "T_ohne_NaS"]  # relevante Annotationsklassen für Redetext
@@ -35,7 +43,7 @@ for sitzung in daten:
     for xml_rede in xml_reden:
         redner_info = xml_rede.find("./p[@klasse='redner']/redner")
         redetext = xml_rede.xpath(redetext_kondition)
-
+        redetext_tokenized = []
         # Leere Absaetze rausschmeissen
         for i in range(len(redetext)):
             absatz = redetext[i]
@@ -45,6 +53,8 @@ for sitzung in daten:
                 absatz = absatz.text
                 redetext[i] = absatz
         redetext = [x for x in redetext if x]
+        redetext_tokenized = " || ".join(redetext)
+        redetext_tokenized = nlp(redetext_tokenized)
 
         kommentare = xml_rede.xpath("./kommentar")
 
@@ -90,6 +100,7 @@ for sitzung in daten:
             }
         }
         reden.append(rede)
+        spacy_reden.append(redetext_tokenized)
 
     protokoll = {
         "meta": {
@@ -105,8 +116,17 @@ for sitzung in daten:
 
     # with open(file=(sitzung + ".log"), mode="w+") as outfile:
     #    pprint(protokoll, stream=outfile)
-    with open(file=(sitzung + ".pickle"), mode="wb") as outfile:
-        pickle.dump(protokoll, outfile)
+    # with open(file=(sitzung + ".pickle"), mode="wb") as outfile:
+    #     pickle.dump(protokoll, outfile)
     pprint(mdbs_ohne_daten, stream=open("mdbs_ohne_daten.txt", "w+"))
+
+    doc_bin = DocBin(attrs=["POS", "TAG", "LEMMA", "IS_STOP", "DEP", "SHAPE"], store_user_data=True)
+    for doc in spacy_reden:
+        doc_bin.add(doc)
+    spacy_out = doc_bin.to_bytes()
+    with open(file=(sitzung + ".spacy"), mode="wb") as spacy_outfile:
+        spacy_outfile.write(spacy_out)
+
+    current += 1
 
 breakPoint = "here"
