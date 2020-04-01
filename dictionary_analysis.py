@@ -1,12 +1,13 @@
 import csv
+import spacy
+from spacy.tokens import DocBin
 from glob import glob
-import ast
 
-daten = glob("plenarprotokolle/testing_prep/*.xml.log")
+nlp = spacy.load("de_core_news_sm")
+daten = glob("plenarprotokolle/testing_prep/*.xml.spacy")
 
 sprecher_werte = {}
 classifiers_neg, classifiers_pos = {}, {}
-
 
 def collect_classifiers(sourcefile, target_dict):
     with open(sourcefile) as csv_file:

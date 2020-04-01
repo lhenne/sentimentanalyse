@@ -24,12 +24,14 @@ redetext_klassen = ["J_1", "J", "O", "A_TOP", "T_Beratung", "T_Drs", "T_E_Drs", 
                     "T_Ueberweisung", "T_fett", "T_ohne_NaS"]  # relevante Annotationsklassen für Redetext
 redetext_kondition = "./p[@klasse='" + "' or @klasse='".join(redetext_klassen) + "']"
 
+
 # Stammdaten der Sprecher einlesen
 def get_partei(redner_id):
     mdb_id = stammdaten_parse.xpath(".//ID[text()=%s]" % redner_id)[0]
     mdb_daten = mdb_id.getparent()
     mdb_partei = mdb_daten.find("./BIOGRAFISCHE_ANGABEN/PARTEI_KURZ")[0].text
     return mdb_partei
+
 
 # Für jedes Protokoll die relevanten Informationen in einem Wörterbuch sammeln
 for sitzung in daten:
@@ -88,7 +90,6 @@ for sitzung in daten:
         try:
             redner_partei = get_partei(redner_id)
         except:
-            # print("Sitzung", metadata.find("./sitzungstitel/sitzungsnr"), ": Keine Informationen zu Redner", rednername, "mit ID", redner_id, "verfügbar.")
             mdbs_ohne_daten[rednername] = redner_id
             redner_partei = 'Unbekannt'
 
@@ -117,9 +118,6 @@ for sitzung in daten:
     for doc in spacy_reden:
         doc_bin.add(doc)
     spacy_out = doc_bin.to_bytes()
-    with open(file=(sitzung + ".spacy"), mode="wb") as spacy_outfile:
+    with open(file=(sitzung + ".xspacy"), mode="wb") as spacy_outfile:
         spacy_outfile.write(spacy_out)
-
     current += 1
-
-breakPoint = "here"
