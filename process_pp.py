@@ -94,10 +94,10 @@ for sitzung in daten:
             redner_partei = 'Unbekannt'
 
         redetext.user_data["meta"] = {
-                "wahlperiode": metadata.find("./plenarprotokoll-nummer/wahlperiode").text,
-                "sitzungsnr": metadata.find("./sitzungstitel/sitzungsnr").text,
-                "ort": metadata.find("./veranstaltungsdaten/ort").text,
-                "datum": metadata.find("./veranstaltungsdaten/datum").get("date"),
+                "wahlperiode": wahlperiode,
+                "sitzungsnr": sitzungsnr,
+                "ort": ort,
+                "datum": datum,
                 "rede_id": str(xml_rede.xpath("@id")[0]),
                 "redner_id": redner_id,
                 "redner_name": rednername,
@@ -108,10 +108,6 @@ for sitzung in daten:
 
         spacy_reden.append(redetext)
 
-    # with open(file=(sitzung + ".log"), mode="w+") as outfile:
-    #    pprint(protokoll, stream=outfile)
-    # with open(file=(sitzung + ".pickle"), mode="wb") as outfile:
-    #     pickle.dump(protokoll, outfile)
     pprint(mdbs_ohne_daten, stream=open("mdbs_ohne_daten.txt", "w+"))
 
     doc_bin = DocBin(attrs=["POS", "TAG", "LEMMA", "IS_STOP", "DEP", "SHAPE", "ENT_ID", "ENT_IOB", "ENT_KB_ID", "ENT_TYPE"], store_user_data=True)

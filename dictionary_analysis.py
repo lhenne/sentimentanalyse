@@ -5,15 +5,15 @@ from spacy.tokens import DocBin
 
 nlp = spacy.load("de_core_news_sm")
 
-daten = glob("plenarprotokolle/testing_prep/*.xml.spacy")
+daten = glob("plenarprotokolle/pp19/*.xml.spacy")
 
 
 spacy_db = {}
 for datei in daten:
     protokoll = DocBin(store_user_data=True).from_bytes(open(datei, "rb").read())
     protokoll = list(protokoll.get_docs(nlp.vocab))
-    datei = datei.lstrip("plenarprotokolle/testing_prep/")
-    spacy_db[datei] = protokoll
+    datei = datei.split("plenarprotokolle/pp19/")[1]
+        spacy_db[datei] = protokoll
 
 for f, protokoll in spacy_db.items():
     for rede in protokoll:
@@ -84,24 +84,22 @@ def gpc_eval(text):
     sentiment_tokens["negativ"] = negative_token
     return sentiment_tokens
 
-
+counter = 0
 for f, protokoll in spacy_db.items():
+    counter += 1
+    print(counter)
     for rede in protokoll:
         rede.user_data["sentiws"] = sentiws_eval(rede)
-
-
-for f, protokoll in spacy_db.items():
     for rede in protokoll:
         rede.user_data["gpc"] = gpc_eval(rede)
-
-for f, d in spacy_db.items():
     doc_bin = DocBin(
         attrs=["POS", "TAG", "LEMMA", "IS_STOP", "DEP", "SHAPE", "ENT_ID", "ENT_IOB", "ENT_KB_ID", "ENT_TYPE"],
         store_user_data=True)
-    for doc in d:
+    for doc in protokoll:
         doc_bin.add(doc)
     spacy_out = doc_bin.to_bytes()
-    with open(file=("plenarprotokolle/testing_prep/" + f + ".sentiment"), mode="wb") as spacy_outfile:
+    with open(file=("plenarprotokolle/pp19/" + f + ".sentiment"), mode="wb") as spacy_outfile:
         spacy_outfile.write(spacy_out)
+
 
 
