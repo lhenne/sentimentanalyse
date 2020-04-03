@@ -1,20 +1,15 @@
 # Sentimentanalyse von Plenarprotokollen der 19. Wahlperiode des deutschen Bundestags
+---
 
-## Entwicklungstagebuch
+Um die Arbeit mit dem Korpus auszuprobieren, muss das Repositorium geklont oder heruntergeladen werden. Anschließend kann ``sentiment_analysis.ipynb`` geöffnet werden, welches vorgefertigte Befehle zum Laden des Datensatzes enthält.
 
-### Vorüberlegungen: XML-Parser
-Die Protokolle liegen von Anfang an als XML-Dateien vor.
-Eine zugehörige DTD spezifiziert und erläutert die Annotationen.
-Nun sollen die Daten in Python eingelesen werden, um für die Sentimentanalyse weiterverarbeitet werden zu können.
-Dazu muss zunächst ein taugliches Python-Paket gefunden werden, das eine XML-Schnittstelle bietet, damit keine fehleranfällige und langwierige Textverarbeitung von Grund auf programmiert werden muss.
-Hier kommen vor allem drei Bibliotheken in Frage:
-1. xml.ElementTree.etree
-2. xml.dom.minidom
-3. BeautifulSoup
+---
+Ressourcen:
 
-Da es die angenehmste Art darstellt, mit XML-ähnlichen Daten zu arbeiten, wurde zunächst BeautifulSoup ausgewählt.
-Ein weiteres Argument besteht darin, dass es zum Parsen das lxml-Paket nutzt, welches wiederum mit dem Ziel veröffentlicht wurde, das etree-Modul des Standard-xml-Paketes zu verbessern.
-Die Auswahl des lxml-Backends zum Parsen, gewrappt in BeautifulSoup, funktionierte allerdings schon bald nicht mehr, weswegen auf das lxml-Paket selbst ausgewichen werden musste.
-Um die üblichen 'pythonischen' Arbeitsgewohnheiten nicht ablegen zu müssen, bietet lxml als alternative Datenstrukturen Objekte an, die von Anfang an klarer verständlich sind.
-Dazu wird statt dem etree-Modul das Modul objectify benutzt.
+* R. Remus, U. Quasthoff & G. Heyer: SentiWS - a Publicly Available German-language Resource for Sentiment Analysis. In: Proceedings of the 7th International Language Resources and Evaluation (LREC'10), pp. 1168-1171, 2010.
+  * SentiWS steht unter der Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported Lizenz.
 
+* GermanPolarityClues Version 0.2: http://www.ulliwaltinger.de/sentiment/
+  * GermanPolarityClues steht unter der Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported Lizenz.
+  
+* Die Plenarprotokolle des Deutschen Bundestags im XML-Format sind gemeinfrei (CC0).
